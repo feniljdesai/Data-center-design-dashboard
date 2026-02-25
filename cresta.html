@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRESTA — Novel Cooling System Design</title>
+  <style>
+    :root {
+      --bg: #0a0e14;
+      --surface: #131920;
+      --surface2: #1a2129;
+      --border: #2d3748;
+      --text: #e2e8f0;
+      --muted: #718096;
+      --accent: #00d4aa;
+      --accent2: #7c3aed;
+      --warm: #f59e0b;
+      --cool: #06b6d4;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .gradient-bg {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 100% 80% at 50% -20%, rgba(0,212,170,0.08), transparent 50%),
+                  radial-gradient(ellipse 60% 40% at 100% 50%, rgba(124,58,237,0.06), transparent);
+      pointer-events: none; z-index: 0;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+
+    header {
+      text-align: center; margin-bottom: 3rem; padding: 2rem 0;
+    }
+    .logo {
+      font-size: 2.5rem; font-weight: 800; letter-spacing: 0.2em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .tagline { font-size: 0.95rem; color: var(--muted); margin-top: 0.5rem; }
+    .full-name { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; letter-spacing: 0.15em; }
+
+    .hero-card {
+      background: linear-gradient(145deg, var(--surface) 0%, var(--surface2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    @media (max-width: 768px) { .hero-card { grid-template-columns: 1fr; } }
+    .hero-text h2 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--accent); }
+    .hero-text p { color: var(--muted); line-height: 1.7; font-size: 0.95rem; }
+
+    .flow-diagram {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      font-family: 'Consolas', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+    }
+    .flow-diagram .hot { color: var(--warm); }
+    .flow-diagram .cold { color: var(--cool); }
+    .flow-diagram .accent { color: var(--accent); }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 900px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .metrics-grid { grid-template-columns: 1fr; } }
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .metric:hover { border-color: var(--accent); }
+    .metric .value { font-size: 1.75rem; font-weight: 700; color: var(--accent); }
+    .metric .label { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+    .metric .vs { font-size: 0.7rem; color: var(--warm); margin-top: 0.5rem; }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+    }
+    .compare-card.cresta { border-left: 4px solid var(--accent); }
+    .compare-card.conventional { border-left: 4px solid var(--warm); }
+    .compare-card h3 { font-size: 1rem; margin-bottom: 1rem; }
+    .compare-card.cresta h3 { color: var(--accent); }
+    .compare-card.conventional h3 { color: var(--warm); }
+    .compare-card ul { list-style: none; }
+    .compare-card li { padding: 0.4rem 0; font-size: 0.9rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem; }
+    .compare-card li::before { content: '→'; color: var(--accent); font-weight: bold; }
+    .compare-card.conventional li::before { content: '•'; color: var(--warm); }
+
+    .interactive-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .interactive-section h2 { font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--accent); }
+    .param-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .param-row label { min-width: 180px; font-size: 0.9rem; }
+    .param-row input[type="range"] {
+      flex: 1; min-width: 150px; height: 8px;
+      -webkit-appearance: none; background: var(--surface2); border-radius: 4px;
+    }
+    .param-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px;
+      background: var(--accent); border-radius: 50%; cursor: pointer;
+    }
+    .param-row .val { font-family: monospace; color: var(--accent); min-width: 60px; }
+
+    .schematic {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 2rem;
+      flex-wrap: wrap;
+    }
+    .schematic-node {
+      width: 80px; height: 80px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 0.5rem;
+      border: 2px solid;
+    }
+    .node-it { background: rgba(245,158,11,0.15); border-color: var(--warm); color: var(--warm); }
+    .node-evap { background: rgba(6,182,212,0.15); border-color: var(--cool); color: var(--cool); }
+    .node-cond { background: rgba(0,212,170,0.15); border-color: var(--accent); color: var(--accent); }
+    .node-arrow { font-size: 1.5rem; color: var(--muted); }
+    .schematic-caption { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+  <div class="container">
+    <header>
+      <nav style="margin-bottom:1rem;"><a href="index.html" style="color:var(--muted);text-decoration:none;font-size:0.85rem;">← Data Center Design Tool</a></nav>
+      <div class="logo">CRESTA</div>
+      <div class="tagline">Novel Cooling System for Data Centers</div>
+      <div class="full-name">Cooling Recirculation Evaporative System with Thermal Acquisition</div>
+    </header>
+
+    <div class="hero-card">
+      <div class="hero-text">
+        <h2>What is CRESTA?</h2>
+        <p>
+          CRESTA is an innovative cooling architecture that combines <strong>indirect evaporative cooling</strong>,
+          <strong>closed-loop recirculation</strong>, and <strong>waste heat recovery</strong> to achieve significantly
+          lower PUE and reduced water consumption compared to conventional CRAC-based systems.
+        </p>
+        <p style="margin-top: 1rem;">
+          The system uses a two-stage approach: primary air-to-liquid heat exchange at the rack level,
+          followed by evaporative cooling of the secondary loop—enabling free cooling in most climates.
+        </p>
+      </div>
+      <div class="flow-diagram">
+        <span class="hot">IT RACKS</span> (heat load)<br>
+        &nbsp;&nbsp;↓ cold plate / rear-door heat exchanger<br>
+        <span class="cold">PRIMARY LOOP</span> (glycol/water)<br>
+        &nbsp;&nbsp;↓ plate heat exchanger<br>
+        <span class="accent">SECONDARY LOOP</span> (evaporative cooling)<br>
+        &nbsp;&nbsp;↓ IEC / dry cooler<br>
+        <span class="cold">AMBIENT REJECTION</span>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric">
+        <div class="value" id="pue">1.15</div>
+        <div class="label">Design PUE</div>
+        <div class="vs">vs 1.5+ conventional</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="cop">4.2</div>
+        <div class="label">System COP</div>
+        <div class="vs">vs 2.5–3.0 typical</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="wue">0.3</div>
+        <div class="label">WUE (L/kWh)</div>
+        <div class="vs">vs 1.5+ evaporative</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="free">65%</div>
+        <div class="label">Free Cooling Hours</div>
+        <div class="vs">annual (temperate climate)</div>
+      </div>
+    </div>
+
+    <div class="comparison">
+      <div class="compare-card cresta">
+        <h3>CRESTA Advantages</h3>
+        <ul>
+          <li>Indirect evaporative cooling — no moisture in data hall</li>
+          <li>Rack-level heat capture — higher ΔT, smaller ducts</li>
+          <li>Closed-loop secondary — minimal makeup water</li>
+          <li>Waste heat recovery option — district heating / DHW</li>
+          <li>ASHRAE A1–A4 compatible — flexible setpoints</li>
+        </ul>
+      </div>
+      <div class="compare-card conventional">
+        <h3>Conventional CRAC Limitations</h3>
+        <ul>
+          <li>Room-level cooling — low ΔT, high airflow</li>
+          <li>Direct expansion or chilled water — high energy</li>
+          <li>Humidification/dehumidification — water intensive</li>
+          <li>Heat rejected to ambient — no recovery</li>
+          <li>Fixed setpoints — less flexibility</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="interactive-section">
+      <h2>CRESTA Sizing Calculator</h2>
+      <div class="param-row">
+        <label>IT Load (kW)</label>
+        <input type="range" id="it-load" min="100" max="2000" step="50" value="500">
+        <span class="val" id="it-val">500 kW</span>
+      </div>
+      <div class="param-row">
+        <label>Ambient Design Temp (°C)</label>
+        <input type="range" id="ambient" min="25" max="45" step="1" value="35">
+        <span class="val" id="ambient-val">35°C</span>
+      </div>
+      <div class="param-row">
+        <label>Free Cooling Threshold (°C)</label>
+        <input type="range" id="free-thresh" min="15" max="25" step="1" value="18">
+        <span class="val" id="free-val">18°C</span>
+      </div>
+      <div class="metrics-grid" style="margin-top: 1.5rem;">
+        <div class="metric">
+          <div class="value" id="cool-cap">—</div>
+          <div class="label">Cooling Capacity Required</div>
+        </div>
+        <div class="metric">
+          <div class="value" id="iec-size">—</div>
+          <div class="label">IEC Unit Capacity</div>
+        </div>
+        <div class="metric">
+          <div class="value" id="pue-calc">—</div>
+          <div class="label">Estimated PUE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="interactive-section">
+      <h2>System Flow Schematic</h2>
+      <div class="schematic">
+        <div class="schematic-node node-it">IT<br>Load</div>
+        <span class="node-arrow">→</span>
+        <div class="schematic-node node-evap">Evap<br>Exch</div>
+        <span class="node-arrow">→</span>
+        <div class="schematic-node node-cond">IEC /<br>Dry Cooler</div>
+        <span class="node-arrow">→</span>
+        <div class="schematic-node node-evap">Ambient</div>
+      </div>
+      <div class="schematic-caption">CRESTA thermal flow: rack heat → primary loop → evaporative secondary → ambient rejection</div>
+    </div>
+
+    <footer>
+      CRESTA — Novel Cooling System Design · Data Center Design Dashboard · feniljdesai
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      const itLoad = document.getElementById('it-load');
+      const ambient = document.getElementById('ambient');
+      const freeThresh = document.getElementById('free-thresh');
+
+      function update() {
+        const it = parseFloat(itLoad.value) || 500;
+        const amb = parseFloat(ambient.value) || 35;
+        const freeT = parseFloat(freeThresh.value) || 18;
+
+        document.getElementById('it-val').textContent = it + ' kW';
+        document.getElementById('ambient-val').textContent = amb + '°C';
+        document.getElementById('free-val').textContent = freeT + '°C';
+
+        const coolCap = it * 1.15;
+        const iecUnit = Math.ceil(coolCap / 80) * 80;
+        const freeHours = Math.max(0, Math.min(100, 80 - (amb - freeT) * 4));
+        const pueFactor = 1.1 + (amb - 25) * 0.01;
+        const pue = (1.05 + (100 - freeHours) / 500).toFixed(2);
+
+        document.getElementById('cool-cap').textContent = coolCap.toFixed(0) + ' kW';
+        document.getElementById('iec-size').textContent = iecUnit + ' kW';
+        document.getElementById('pue-calc').textContent = pue;
+      }
+
+      [itLoad, ambient, freeThresh].forEach(el => el.addEventListener('input', update));
+      update();
+    })();
+  </script>
+</body>
+</html>

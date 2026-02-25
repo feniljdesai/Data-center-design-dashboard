@@ -28,9 +28,12 @@
     }
     .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; }
     header {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
       margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
     }
+    .nav-links { display: flex; gap: 0.75rem; }
+    .nav-links a { color: var(--accent-cyan); text-decoration: none; font-size: 0.85rem; }
+    .nav-links a:hover { text-decoration: underline; }
     h1 { font-size: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
     h1::before { content: ''; width: 4px; height: 24px; background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple)); border-radius: 2px; }
     .badge { font-size: 0.65rem; padding: 0.2rem 0.4rem; background: var(--accent-green); color: var(--bg-dark); border-radius: 4px; font-weight: 600; }
@@ -102,6 +105,10 @@
   <div class="container">
     <header>
       <h1>Data Center Design Tool</h1>
+      <nav class="nav-links">
+        <a href="index.html">Design Tool</a>
+        <a href="cresta.html">CRESTA Cooling</a>
+      </nav>
       <span class="badge">ASHRAE 90.4 · Design Certified</span>
     </header>
 

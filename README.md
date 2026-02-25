@@ -5,6 +5,7 @@ An ASHRAE-aligned design tool for data centers. Enter **Total IT Power** and get
 ## Features
 
 - **Primary input**: Total IT Power (kW)
+- **CRESTA**: Novel cooling system design showcase ([cresta.html](cresta.html)) — Cooling Recirculation Evaporative System with Thermal Acquisition
 - **Power system**: UPS, PDUs, transformers
 - **Cooling system**: CRAC/CRAH units, sizing per ASHRAE
 - **Backup system**: Generators, ATS, fuel
