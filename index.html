@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Center Design Tool | ASHRAE Certified</title>
+  <style>
+    :root {
+      --bg-dark: #0d1117;
+      --bg-card: #161b22;
+      --bg-elevated: #21262d;
+      --border: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent-cyan: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-amber: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #a371f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(88, 166, 255, 0.08), transparent);
+    }
+    .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+    }
+    h1 { font-size: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    h1::before { content: ''; width: 4px; height: 24px; background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple)); border-radius: 2px; }
+    .badge { font-size: 0.65rem; padding: 0.2rem 0.4rem; background: var(--accent-green); color: var(--bg-dark); border-radius: 4px; font-weight: 600; }
+    .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--accent-cyan); }
+    .input-hero {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .input-hero label { display: block; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .input-hero input[type="number"] {
+      font-size: 2.5rem; font-weight: 700; width: 200px; text-align: center;
+      background: var(--bg-dark); border: 2px solid var(--accent-cyan); border-radius: 8px;
+      color: var(--accent-cyan); padding: 0.5rem;
+    }
+    .input-hero .unit { font-size: 1.5rem; color: var(--text-secondary); margin-left: 0.5rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 1100px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .card-title { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .param-row { margin-bottom: 1rem; }
+    .param-row label { display: block; font-size: 0.85rem; margin-bottom: 0.35rem; }
+    .param-row input, .param-row select {
+      width: 100%; padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-primary); font-size: 0.9rem;
+    }
+    .param-row input[type="number"] { font-family: 'Consolas', monospace; }
+    .metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1rem; text-align: center;
+    }
+    .metric-value { font-family: 'Consolas', monospace; font-size: 1.4rem; font-weight: 600; color: var(--accent-cyan); }
+    .metric-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
+    .bom-table {
+      width: 100%; border-collapse: collapse; font-size: 0.85rem;
+    }
+    .bom-table th, .bom-table td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .bom-table th { background: var(--bg-elevated); color: var(--text-secondary); font-weight: 500; }
+    .bom-table tr:hover { background: rgba(88, 166, 255, 0.05); }
+    .bom-table .qty { text-align: center; font-family: 'Consolas', monospace; }
+    .bom-table .size { font-family: 'Consolas', monospace; color: var(--accent-cyan); }
+    .export-btn {
+      padding: 0.5rem 1rem; background: var(--accent-cyan); color: var(--bg-dark);
+      border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
+    }
+    .export-btn:hover { opacity: 0.9; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab { padding: 0.5rem 1rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); }
+    .tab.active { background: var(--accent-cyan); color: var(--bg-dark); border-color: var(--accent-cyan); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .design-summary { background: var(--bg-elevated); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.6; }
+    .design-summary strong { color: var(--accent-cyan); }
+    footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-secondary); text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Data Center Design Tool</h1>
+      <span class="badge">ASHRAE 90.4 · Design Certified</span>
+    </header>
+
+    <div class="input-hero">
+      <label>Total IT Power (Primary Design Input)</label>
+      <div>
+        <input type="number" id="it-power" min="10" max="10000" step="10" value="500">
+        <span class="unit">kW</span>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Enter your total IT equipment power consumption</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Design Parameters</div>
+        <div class="param-row">
+          <label>PUE Target (1.2 = efficient, 2.0 = legacy)</label>
+          <input type="number" id="pue" min="1.2" max="2.5" step="0.05" value="1.45">
+        </div>
+        <div class="param-row">
+          <label>Power Redundancy</label>
+          <select id="redundancy">
+            <option value="N">N (No redundancy)</option>
+            <option value="N+1" selected>N+1</option>
+            <option value="N+2">N+2</option>
+            <option value="2N">2N (Full redundancy)</option>
+          </select>
+        </div>
+        <div class="param-row">
+          <label>Rack Power Density (kW per rack)</label>
+          <input type="number" id="rack-density" min="3" max="50" step="1" value="8">
+        </div>
+        <div class="param-row">
+          <label>UPS Power Factor</label>
+          <input type="number" id="power-factor" min="0.8" max="1" step="0.05" value="0.9">
+        </div>
+        <div class="param-row">
+          <label>UPS Runtime (minutes)</label>
+          <input type="number" id="ups-runtime" min="5" max="30" step="5" value="15">
+        </div>
+        <div class="param-row">
+          <label>Growth Buffer (%)</label>
+          <input type="number" id="growth-buffer" min="0" max="50" step="5" value="20">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Environmental (ASHRAE)</div>
+        <div class="param-row">
+          <label>Inlet Temperature (°C)</label>
+          <input type="number" id="temp" min="18" max="27" step="1" value="22">
+        </div>
+        <div class="param-row">
+          <label>Relative Humidity (%)</label>
+          <input type="number" id="rh" min="20" max="80" step="5" value="45">
+        </div>
+        <div class="param-row">
+          <label>Cooling Redundancy</label>
+          <select id="cooling-redundancy">
+            <option value="N">N</option>
+            <option value="N+1" selected>N+1</option>
+            <option value="N+2">N+2</option>
+            <option value="2N">2N</option>
+          </select>
+        </div>
+        <div class="param-row">
+          <label>CRAC Unit Capacity (kW cooling each)</label>
+          <input type="number" id="crac-capacity" min="20" max="150" step="10" value="60">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Design Output Summary</div>
+    <div class="metrics-row" id="metrics-row">
+      <div class="metric-card"><div class="metric-value" id="out-total-power">—</div><div class="metric-label">Total Facility Power</div></div>
+      <div class="metric-card"><div class="metric-value" id="out-cooling">—</div><div class="metric-label">Cooling Required</div></div>
+      <div class="metric-card"><div class="metric-value" id="out-ups">—</div><div class="metric-label">UPS Capacity</div></div>
+      <div class="metric-card"><div class="metric-value" id="out-generator">—</div><div class="metric-label">Generator</div></div>
+      <div class="metric-card"><div class="metric-value" id="out-racks">—</div><div class="metric-label">Racks</div></div>
+      <div class="metric-card"><div class="metric-value" id="out-floor">—</div><div class="metric-label">Floor Area (m²)</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="bom">Bill of Materials</div>
+      <div class="tab" data-tab="power">Power System</div>
+      <div class="tab" data-tab="cooling">Cooling System</div>
+      <div class="tab" data-tab="backup">Backup System</div>
+    </div>
+
+    <div id="tab-bom" class="tab-content active">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div class="card-title">Bill of Materials (BOM)</div>
+          <button class="export-btn" onclick="exportBOM()">Export BOM</button>
+        </div>
+        <table class="bom-table" id="bom-table">
+          <thead><tr><th>Category</th><th>Component</th><th>Qty</th><th>Size/Spec</th><th>Notes</th></tr></thead>
+          <tbody id="bom-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-power" class="tab-content">
+      <div class="card">
+        <div class="card-title">Power Distribution System</div>
+        <div class="design-summary" id="power-summary"></div>
+        <table class="bom-table"><thead><tr><th>Component</th><th>Qty</th><th>Specification</th></tr></thead><tbody id="power-bom"></tbody></table>
+      </div>
+    </div>
+
+    <div id="tab-cooling" class="tab-content">
+      <div class="card">
+        <div class="card-title">Cooling System</div>
+        <div class="design-summary" id="cooling-summary"></div>
+        <table class="bom-table"><thead><tr><th>Component</th><th>Qty</th><th>Specification</th></tr></thead><tbody id="cooling-bom"></tbody></table>
+      </div>
+    </div>
+
+    <div id="tab-backup" class="tab-content">
+      <div class="card">
+        <div class="card-title">Backup & Emergency Power</div>
+        <div class="design-summary" id="backup-summary"></div>
+        <table class="bom-table"><thead><tr><th>Component</th><th>Qty</th><th>Specification</th></tr></thead><tbody id="backup-bom"></tbody></table>
+      </div>
+    </div>
+
+    <footer>Data Center Design Tool · Based on ASHRAE 90.4, TIA-942, industry best practices. For design reference only.</footer>
+  </div>
+
+  <script>
+    (function() {
+    'use strict';
+
+    const REDUNDANCY_FACTORS = { N: 1, 'N+1': 1.25, 'N+2': 1.5, '2N': 2 };
+    const RACK_FOOTPRINT = 2.5; // m² per rack (600×1200mm + cold/hot aisle)
+    const UPS_EFFICIENCY = 0.93;
+    const UPS_LOSS_PCT = 0.07;
+    const PD_LOSS_PCT = 0.03;
+    const LIGHTING_PCT = 0.02;
+
+    function getEl(id) { return document.getElementById(id); }
+
+    function roundUp(val, step) { return Math.ceil(val / step) * step; }
+    function roundNear(val, step) { return Math.round(val / step) * step; }
+
+    function calculate() {
+      const itPower = parseFloat(getEl('it-power').value) || 500;
+      const pue = parseFloat(getEl('pue').value) || 1.45;
+      const redundancy = getEl('redundancy').value;
+      const rackDensity = parseFloat(getEl('rack-density').value) || 8;
+      const pf = parseFloat(getEl('power-factor').value) || 0.9;
+      const upsRuntime = parseFloat(getEl('ups-runtime').value) || 15;
+      const growthBuffer = (parseFloat(getEl('growth-buffer').value) || 20) / 100;
+      const cracCapacity = parseFloat(getEl('crac-capacity').value) || 60;
+      const coolingRedundancy = getEl('cooling-redundancy').value;
+
+      const rf = REDUNDANCY_FACTORS[redundancy] || 1.25;
+      const cf = REDUNDANCY_FACTORS[coolingRedundancy] || 1.25;
+
+      const itWithGrowth = itPower * (1 + growthBuffer);
+      const totalFacilityPower = itWithGrowth * pue;
+      const coolingLoad = itWithGrowth + (itWithGrowth * (UPS_LOSS_PCT + PD_LOSS_PCT + LIGHTING_PCT));
+      const coolingRequired = coolingLoad * 1.1;
+      const upsKva = (itWithGrowth / pf) * 1.2 * rf;
+      const generatorKw = totalFacilityPower * 1.15;
+      const rackCount = Math.ceil(itWithGrowth / rackDensity);
+      const floorArea = Math.ceil(rackCount * RACK_FOOTPRINT);
+
+      const upsModuleSize = Math.max(100, roundNear(upsKva / (redundancy === 'N+1' ? 2 : redundancy === 'N+2' ? 3 : 1), 100));
+      const upsQty = redundancy === '2N' ? 2 * Math.ceil(upsKva / upsModuleSize) : Math.ceil(upsKva / upsModuleSize) + (redundancy.includes('+') ? 1 : 0);
+      const cracQty = Math.ceil(coolingRequired / cracCapacity) + (coolingRedundancy.includes('+') ? 1 : 0);
+      const pduPerRack = rackDensity <= 10 ? 1 : 2;
+      const pduCount = rackCount * pduPerRack;
+      const pduRating = roundUp(rackDensity / pduPerRack, 5);
+
+      return {
+        itPower, itWithGrowth, totalFacilityPower, coolingLoad, coolingRequired,
+        upsKva, upsModuleSize, upsQty, generatorKw, rackCount, floorArea,
+        cracQty, cracCapacity, pduCount, pduRating, upsRuntime, redundancy, coolingRedundancy
+      };
+    }
+
+    function updateMetrics(calc) {
+      getEl('out-total-power').textContent = calc.totalFacilityPower.toFixed(0) + ' kW';
+      getEl('out-cooling').textContent = calc.coolingRequired.toFixed(0) + ' kW';
+      getEl('out-ups').textContent = calc.upsKva.toFixed(0) + ' kVA';
+      getEl('out-generator').textContent = calc.generatorKw.toFixed(0) + ' kW';
+      getEl('out-racks').textContent = calc.rackCount;
+      getEl('out-floor').textContent = calc.floorArea + ' m²';
+    }
+
+    function buildBOM(calc) {
+      const rows = [
+        ['Power', 'UPS System', calc.upsQty, `${calc.upsModuleSize} kVA each`, calc.redundancy + ' redundant'],
+        ['Power', 'UPS Battery Cabinet', calc.upsQty, `${calc.upsRuntime} min runtime`, 'Per UPS module'],
+        ['Power', 'Main Distribution Panel', 1, `${calc.totalFacilityPower.toFixed(0)} kW`, 'Incoming utility'],
+        ['Power', 'Rack PDU', calc.pduCount, `${calc.pduRating} kW`, 'Per rack/cabinet'],
+        ['Power', 'Transformer', 1, `${roundUp(calc.totalFacilityPower*1.2, 100)} kVA`, 'Step-down if required'],
+        ['Cooling', 'CRAC/CRAH Unit', calc.cracQty, `${calc.cracCapacity} kW cooling`, 'N+1 redundant'],
+        ['Cooling', 'Precision A/C (if split)', Math.ceil(calc.coolingRequired/80), '80 kW nominal', 'Alternative to CRAC'],
+        ['Backup', 'Diesel Generator', 1, `${calc.generatorKw.toFixed(0)} kW`, 'Prime power rating'],
+        ['Backup', 'ATS (Auto Transfer)', 1, `${calc.totalFacilityPower.toFixed(0)} kW`, 'Utility to generator'],
+        ['Backup', 'Fuel Tank', 1, `${Math.ceil(calc.generatorKw*0.3)} L/hr × 24h`, '24hr runtime'],
+        ['Infrastructure', 'Server Rack/Cabinet', calc.rackCount, `${getEl('rack-density').value} kW`, '42U standard'],
+        ['Infrastructure', 'Cable Tray', Math.ceil(calc.rackCount/10), 'Per row', 'Overhead cable management'],
+        ['Infrastructure', 'Fire Suppression', 1, 'FM-200 or equivalent', 'Per zone'],
+        ['Infrastructure', 'BMS/DCIM', 1, 'Full monitoring', 'Environmental + power'],
+      ];
+      return rows;
+    }
+
+    function renderBOM(calc) {
+      const rows = buildBOM(calc);
+      const tbody = getEl('bom-body');
+      tbody.innerHTML = rows.map(r => `
+        <tr><td>${r[0]}</td><td>${r[1]}</td><td class="qty">${r[2]}</td><td class="size">${r[3]}</td><td>${r[4]}</td></tr>
+      `).join('');
+    }
+
+    function renderPowerTab(calc) {
+      getEl('power-summary').innerHTML = `
+        <strong>Total Facility Load:</strong> ${calc.totalFacilityPower.toFixed(0)} kW (IT: ${calc.itWithGrowth.toFixed(0)} kW × PUE ${getEl('pue').value})<br>
+        <strong>Power Chain:</strong> Utility → Transformer → UPS (${calc.upsKva.toFixed(0)} kVA) → PDU → Racks<br>
+        <strong>PDUs:</strong> ${calc.pduCount} units at ${calc.pduRating} kW each for ${calc.rackCount} racks
+      `;
+      getEl('power-bom').innerHTML = `
+        <tr><td>UPS System</td><td>${calc.upsQty}</td><td>${calc.upsModuleSize} kVA each, PF 0.9</td></tr>
+        <tr><td>Battery Cabinet</td><td>${calc.upsQty}</td><td>${calc.upsRuntime} min @ full load</td></tr>
+        <tr><td>Rack PDU</td><td>${calc.pduCount}</td><td>${calc.pduRating} kW, 3-phase</td></tr>
+        <tr><td>Main Switchboard</td><td>1</td><td>${calc.totalFacilityPower.toFixed(0)} A capacity</td></tr>
+      `;
+    }
+
+    function renderCoolingTab(calc) {
+      getEl('cooling-summary').innerHTML = `
+        <strong>IT Heat Load:</strong> ${calc.itWithGrowth.toFixed(0)} kW (1:1 power-to-heat)<br>
+        <strong>Additional:</strong> UPS/PD losses ~${(calc.itWithGrowth * 0.1).toFixed(0)} kW<br>
+        <strong>Total Cooling:</strong> ${calc.coolingRequired.toFixed(0)} kW (10% safety factor)<br>
+        <strong>ASHRAE:</strong> 18–27°C inlet, 20–80% RH
+      `;
+      getEl('cooling-bom').innerHTML = `
+        <tr><td>CRAC/CRAH</td><td>${calc.cracQty}</td><td>${calc.cracCapacity} kW each, N+1</td></tr>
+        <tr><td>Chilled Water Plant</td><td>1</td><td>${calc.coolingRequired.toFixed(0)} kW (if water-cooled)</td></tr>
+        <tr><td>Cooling Tower</td><td>1</td><td>For chiller condenser (if applicable)</td></tr>
+      `;
+    }
+
+    function renderBackupTab(calc) {
+      getEl('backup-summary').innerHTML = `
+        <strong>Generator:</strong> ${calc.generatorKw.toFixed(0)} kW (115% of facility load)<br>
+        <strong>UPS Runtime:</strong> ${calc.upsRuntime} min (bridge to generator start)<br>
+        <strong>Fuel:</strong> ~${(calc.generatorKw * 0.3).toFixed(0)} L/hr at full load
+      `;
+      getEl('backup-bom').innerHTML = `
+        <tr><td>Diesel Generator</td><td>1</td><td>${calc.generatorKw.toFixed(0)} kW prime</td></tr>
+        <tr><td>ATS</td><td>1</td><td>${calc.totalFacilityPower.toFixed(0)} kW</td></tr>
+        <tr><td>Day Tank</td><td>1</td><td>24–72 hr supply</td></tr>
+      `;
+    }
+
+    function exportBOM() {
+      const calc = calculate();
+      const rows = buildBOM(calc);
+      let csv = 'Category,Component,Qty,Size/Spec,Notes\n';
+      rows.forEach(r => { csv += r.join(',') + '\n'; });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'datacenter-bom.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function updateAll() {
+      const calc = calculate();
+      updateMetrics(calc);
+      renderBOM(calc);
+      renderPowerTab(calc);
+      renderCoolingTab(calc);
+      renderBackupTab(calc);
+    }
+
+    function init() {
+      ['it-power','pue','redundancy','rack-density','power-factor','ups-runtime','growth-buffer','crac-capacity','cooling-redundancy'].forEach(id => {
+        const el = getEl(id);
+        if (el) el.addEventListener('input', updateAll);
+        if (el && el.tagName === 'SELECT') el.addEventListener('change', updateAll);
+      });
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          getEl('tab-' + tab.dataset.tab).classList.add('active');
+        });
+      });
+      updateAll();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+    window.exportBOM = exportBOM;
+    })();
+  </script>
+</body>
+</html>
