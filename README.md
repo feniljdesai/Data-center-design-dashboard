@@ -13,7 +13,7 @@ An ASHRAE-aligned design tool for data centers. Enter **Total IT Power** and get
 
 ## Live Demo
 
-**[View on GitHub Pages](https://YOUR_USERNAME.github.io/data-center-dashboard/)** *(enable Pages in repo Settings)*
+**[View on GitHub Pages](https://feniljdesai.github.io/Data-center-design-dashboard/)** *(enable Pages in repo Settings → Pages)*
 
 ## Quick Start
 
